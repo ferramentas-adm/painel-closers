@@ -65,7 +65,7 @@ export default function CloserControl() {
         <div className="flex flex-col gap-4 w-full max-w-sm">
           <h1 className="text-2xl font-bold text-center">Qual seu nome?</h1>
           <input
-            className="rounded-lg px-4 py-3 text-black text-lg"
+            className="rounded-lg px-4 py-3 bg-neutral-800 text-white placeholder-neutral-500 border border-neutral-700 text-lg"
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && confirmName()}
