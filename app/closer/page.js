@@ -46,6 +46,19 @@ export default function CloserControl() {
     setStatus(null);
   }
 
+  async function sair() {
+    setLoading(true);
+    await fetch("/api/status", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    localStorage.removeItem("closerName");
+    setSaved(false);
+    setStatus(null);
+    setLoading(false);
+  }
+
   if (!saved) {
     return (
       <main className="min-h-screen bg-neutral-950 text-white flex items-center justify-center p-6">
@@ -105,9 +118,18 @@ export default function CloserControl() {
         </button>
       </div>
 
-      <button onClick={trocarNome} className="text-neutral-500 text-sm underline">
-        trocar nome
-      </button>
+      <div className="flex gap-6">
+        <button onClick={trocarNome} className="text-neutral-500 text-sm underline">
+          trocar nome
+        </button>
+        <button
+          disabled={loading}
+          onClick={sair}
+          className="text-red-500 text-sm underline"
+        >
+          sair (remover do painel)
+        </button>
+      </div>
     </main>
   );
 }
