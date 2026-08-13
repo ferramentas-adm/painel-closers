@@ -2,6 +2,30 @@
 
 import { useEffect, useState } from "react";
 
+const PRIORITY_NAMES = [
+  "geraldo",
+  "roni",
+  "leandro",
+  "neto",
+  "ferro",
+  "joao leme",
+  "lucas santos",
+  "igor occon",
+  "arthur",
+];
+
+function normalize(str) {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "");
+}
+
+function isPriority(name) {
+  const n = normalize(name);
+  return PRIORITY_NAMES.some((p) => n.includes(p));
+}
+
 function formatElapsed(ms) {
   const totalSeconds = Math.floor(ms / 1000);
   const h = Math.floor(totalSeconds / 3600);
@@ -48,11 +72,14 @@ export default function Painel() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {entries.map(([name, info]) => {
             const livre = info.status === "livre";
+            const priority = isPriority(name);
             return (
               <div
                 key={name}
                 className={`rounded-2xl p-6 shadow-lg border-4 flex flex-col items-center gap-2 ${
-                  livre
+                  priority
+                    ? "bg-yellow-900 border-yellow-400"
+                    : livre
                     ? "bg-green-950 border-green-500"
                     : "bg-red-950 border-red-500"
                 }`}
