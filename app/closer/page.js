@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from "react";
 
 export default function CloserControl() {
   const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState("login");
+  const [authError, setAuthError] = useState("");
   const [saved, setSaved] = useState(false);
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -38,9 +41,28 @@ export default function CloserControl() {
     return () => clearInterval(interval);
   }, [saved, name]);
 
-  function confirmName() {
-    if (!name.trim()) return;
-    localStorage.setItem("closerName", name.trim());
+  async function submitAuth() {
+    if (!name.trim() || !password) return;
+    if (mode === "register" && !name.trim().includes(" ")) {
+      setAuthError("digite nome e sobrenome");
+      return;
+    }
+    setAuthError("");
+    setLoading(true);
+    const res = await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: mode, name, password }),
+    });
+    const data = await res.json();
+    setLoading(false);
+    if (!res.ok) {
+      setAuthError(data.error ?? "erro");
+      return;
+    }
+    localStorage.setItem("closerName", data.name);
+    setName(data.name);
+    setPassword("");
     setSaved(true);
   }
 
@@ -55,10 +77,11 @@ export default function CloserControl() {
     setLoading(false);
   }
 
-  function trocarNome() {
+  function sairSessao() {
     localStorage.removeItem("closerName");
     setSaved(false);
     setStatus(null);
+    setPassword("");
   }
 
   async function sair() {
@@ -68,9 +91,7 @@ export default function CloserControl() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name }),
     });
-    localStorage.removeItem("closerName");
-    setSaved(false);
-    setStatus(null);
+    sairSessao();
     setLoading(false);
   }
 
@@ -78,20 +99,42 @@ export default function CloserControl() {
     return (
       <main className="min-h-screen bg-neutral-950 text-white flex items-center justify-center p-6">
         <div className="flex flex-col gap-4 w-full max-w-sm">
-          <h1 className="text-2xl font-bold text-center">Qual seu nome?</h1>
+          <h1 className="text-2xl font-bold text-center">
+            {mode === "login" ? "Entrar" : "Criar cadastro"}
+          </h1>
           <input
             className="rounded-lg px-4 py-3 bg-neutral-800 text-white placeholder-neutral-500 border border-neutral-700 text-lg"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && confirmName()}
-            placeholder="Ex: Joao"
+            placeholder="Nome"
             autoFocus
           />
+          <input
+            className="rounded-lg px-4 py-3 bg-neutral-800 text-white placeholder-neutral-500 border border-neutral-700 text-lg"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submitAuth()}
+            placeholder="Senha"
+          />
+          {authError && (
+            <p className="text-red-500 text-sm text-center">{authError}</p>
+          )}
           <button
-            onClick={confirmName}
+            disabled={loading}
+            onClick={submitAuth}
             className="bg-blue-600 hover:bg-blue-500 rounded-lg py-3 text-lg font-semibold"
           >
-            Continuar
+            {mode === "login" ? "Entrar" : "Cadastrar"}
+          </button>
+          <button
+            onClick={() => {
+              setMode(mode === "login" ? "register" : "login");
+              setAuthError("");
+            }}
+            className="text-neutral-500 text-sm underline"
+          >
+            {mode === "login" ? "criar cadastro" : "ja tenho cadastro"}
           </button>
         </div>
       </main>
@@ -134,8 +177,8 @@ export default function CloserControl() {
       </div>
 
       <div className="flex gap-6">
-        <button onClick={trocarNome} className="text-neutral-500 text-sm underline">
-          trocar nome
+        <button onClick={sairSessao} className="text-neutral-500 text-sm underline">
+          sair da conta
         </button>
         <button
           disabled={loading}
