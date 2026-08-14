@@ -30,10 +30,13 @@ function formatElapsed(ms) {
 function Card({ name, info, now, priorityNames }) {
   const livre = info.status === "livre";
   const priority = isPriority(name, priorityNames);
+  const alerta = !!info.alertaTi;
   return (
     <div
       className={`rounded-2xl p-6 shadow-lg border-4 flex flex-col items-center gap-2 ${
-        priority
+        alerta
+          ? "bg-orange-950 border-orange-400 animate-pulse"
+          : priority
           ? livre
             ? "bg-yellow-900 border-yellow-400 animate-pulse"
             : "bg-yellow-900 border-yellow-400"
@@ -46,6 +49,9 @@ function Card({ name, info, now, priorityNames }) {
         {priority ? "💎 " : ""}
         {name}
       </span>
+      {info.mesa && (
+        <span className="text-neutral-400 text-sm">mesa {info.mesa}</span>
+      )}
       <span
         className={`text-lg font-bold uppercase tracking-wide ${
           livre ? "text-green-400" : "text-red-400"
@@ -56,6 +62,9 @@ function Card({ name, info, now, priorityNames }) {
       <span className="text-neutral-100 text-2xl font-bold tabular-nums">
         {formatElapsed(now - info.changedAt)}
       </span>
+      {alerta && (
+        <span className="text-orange-400 font-bold text-sm">🆘 CHAMOU T.I.</span>
+      )}
     </div>
   );
 }
@@ -111,6 +120,8 @@ export default function Painel() {
   const cycling = entries.length > CYCLE_THRESHOLD;
   const showingLivres = !cycling || cycleIndex === 0;
 
+  const alertas = entries.filter(([, info]) => info.alertaTi);
+
   async function limparTudo() {
     if (!confirm("Remover todos os closers do painel?")) return;
     await fetch("/api/status", {
@@ -121,11 +132,45 @@ export default function Painel() {
     setClosers({});
   }
 
+  async function resolverAlerta(name) {
+    await fetch("/api/alerta", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    setClosers((prev) => ({
+      ...prev,
+      [name]: { ...prev[name], alertaTi: null },
+    }));
+  }
+
   return (
     <main className="min-h-screen bg-neutral-950 text-white p-8">
       <h1 className="text-4xl font-bold text-center mb-2 tracking-tight">
         Painel de Status
       </h1>
+
+      {alertas.length > 0 && (
+        <div className="max-w-6xl mx-auto mb-8 flex flex-col gap-2">
+          {alertas.map(([name, info]) => (
+            <div
+              key={name}
+              className="bg-orange-600 text-black rounded-xl px-6 py-4 flex items-center justify-between animate-pulse"
+            >
+              <span className="font-bold text-lg">
+                🆘 {name}
+                {info.mesa ? ` (mesa ${info.mesa})` : ""} precisa de T.I.
+              </span>
+              <button
+                onClick={() => resolverAlerta(name)}
+                className="bg-black text-white rounded-lg px-4 py-2 font-semibold"
+              >
+                Resolvido
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {entries.length > 0 && (
         <div className="text-center mb-8">
