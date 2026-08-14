@@ -1,30 +1,36 @@
 import { createAccount, verifyLogin } from "@/lib/store";
+import { createSessionCookie, clearSessionCookie } from "@/lib/session";
+import { authSchema } from "@/lib/schemas";
 
 export async function POST(request) {
-  const { action, name, password } = await request.json();
-
-  if (!name || typeof name !== "string" || !name.trim()) {
-    return Response.json({ error: "nome obrigatorio" }, { status: 400 });
+  const body = await request.json().catch(() => null);
+  const parsed = authSchema.safeParse(body);
+  if (!parsed.success) {
+    return Response.json({ error: "dados invalidos" }, { status: 400 });
   }
-  if (!password || typeof password !== "string") {
-    return Response.json({ error: "senha obrigatoria" }, { status: 400 });
-  }
+  const { action, name, password } = parsed.data;
 
   if (action === "register") {
     const account = await createAccount(name, password);
     if (!account) {
       return Response.json({ error: "nome ja cadastrado" }, { status: 409 });
     }
-    return Response.json({ name: account.displayName });
+    return Response.json(
+      { name: account.displayName },
+      { headers: { "Set-Cookie": createSessionCookie(account.displayName) } }
+    );
   }
 
-  if (action === "login") {
-    const account = await verifyLogin(name, password);
-    if (!account) {
-      return Response.json({ error: "nome ou senha invalidos" }, { status: 401 });
-    }
-    return Response.json({ name: account.displayName });
+  const account = await verifyLogin(name, password);
+  if (!account) {
+    return Response.json({ error: "nome ou senha invalidos" }, { status: 401 });
   }
+  return Response.json(
+    { name: account.displayName },
+    { headers: { "Set-Cookie": createSessionCookie(account.displayName) } }
+  );
+}
 
-  return Response.json({ error: "acao invalida" }, { status: 400 });
+export async function DELETE() {
+  return Response.json({ ok: true }, { headers: { "Set-Cookie": clearSessionCookie() } });
 }

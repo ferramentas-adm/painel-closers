@@ -2,18 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-const PRIORITY_NAMES = [
-  "geraldo",
-  "roni",
-  "leandro",
-  "neto",
-  "ferro",
-  "joao leme",
-  "lucas santos",
-  "igor occon",
-  "arthur",
-];
-
 const CYCLE_THRESHOLD = 8;
 const CYCLE_INTERVAL = 8000;
 
@@ -24,9 +12,9 @@ function normalize(str) {
     .replace(/[̀-ͯ]/g, "");
 }
 
-function isPriority(name) {
+function isPriority(name, priorityNames) {
   const n = normalize(name);
-  return PRIORITY_NAMES.some((p) => n.includes(p));
+  return priorityNames.some((p) => n.includes(p));
 }
 
 function formatElapsed(ms) {
@@ -39,9 +27,9 @@ function formatElapsed(ms) {
   return `${s}s`;
 }
 
-function Card({ name, info, now }) {
+function Card({ name, info, now, priorityNames }) {
   const livre = info.status === "livre";
-  const priority = isPriority(name);
+  const priority = isPriority(name, priorityNames);
   return (
     <div
       className={`rounded-2xl p-6 shadow-lg border-4 flex flex-col items-center gap-2 ${
@@ -72,11 +60,11 @@ function Card({ name, info, now }) {
   );
 }
 
-function Grid({ items, now }) {
+function Grid({ items, now, priorityNames }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
       {items.map(([name, info]) => (
-        <Card key={name} name={name} info={info} now={now} />
+        <Card key={name} name={name} info={info} now={now} priorityNames={priorityNames} />
       ))}
     </div>
   );
@@ -86,6 +74,13 @@ export default function Painel() {
   const [closers, setClosers] = useState({});
   const [now, setNow] = useState(Date.now());
   const [cycleIndex, setCycleIndex] = useState(0);
+  const [priorityNames, setPriorityNames] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/priority")
+      .then((r) => r.json())
+      .then(setPriorityNames);
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -156,7 +151,7 @@ export default function Painel() {
           >
             {showingLivres ? `Livres (${livres.length})` : `Ocupados (${ocupados.length})`}
           </h2>
-          <Grid items={showingLivres ? livres : ocupados} now={now} />
+          <Grid items={showingLivres ? livres : ocupados} now={now} priorityNames={priorityNames} />
         </div>
       ) : (
         <div className="max-w-6xl mx-auto flex flex-col gap-10">
@@ -164,13 +159,13 @@ export default function Painel() {
             <h2 className="text-2xl font-bold mb-4 uppercase tracking-wide text-green-400">
               Livres ({livres.length})
             </h2>
-            <Grid items={livres} now={now} />
+            <Grid items={livres} now={now} priorityNames={priorityNames} />
           </div>
           <div>
             <h2 className="text-2xl font-bold mb-4 uppercase tracking-wide text-red-400">
               Ocupados ({ocupados.length})
             </h2>
-            <Grid items={ocupados} now={now} />
+            <Grid items={ocupados} now={now} priorityNames={priorityNames} />
           </div>
         </div>
       )}

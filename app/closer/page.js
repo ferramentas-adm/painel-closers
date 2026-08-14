@@ -68,16 +68,22 @@ export default function CloserControl() {
 
   async function update(newStatus) {
     setLoading(true);
-    await fetch("/api/status", {
+    const res = await fetch("/api/status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, status: newStatus }),
+      body: JSON.stringify({ status: newStatus }),
     });
+    if (res.status === 401) {
+      sairSessao();
+      setLoading(false);
+      return;
+    }
     setStatus(newStatus);
     setLoading(false);
   }
 
-  function sairSessao() {
+  async function sairSessao() {
+    await fetch("/api/auth", { method: "DELETE" }).catch(() => {});
     localStorage.removeItem("closerName");
     setSaved(false);
     setStatus(null);
@@ -89,9 +95,9 @@ export default function CloserControl() {
     await fetch("/api/status", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({}),
     });
-    sairSessao();
+    await sairSessao();
     setLoading(false);
   }
 
