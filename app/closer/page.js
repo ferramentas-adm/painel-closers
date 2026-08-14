@@ -18,9 +18,19 @@ export default function CloserControl() {
 
   useEffect(() => {
     if (!saved || !name) return;
-    fetch("/api/status")
-      .then((r) => r.json())
-      .then((data) => setStatus(data[name]?.status ?? null));
+    async function poll() {
+      const data = await fetch("/api/status", { cache: "no-store" }).then((r) => r.json());
+      if (!data[name]) {
+        localStorage.removeItem("closerName");
+        setSaved(false);
+        setStatus(null);
+        return;
+      }
+      setStatus(data[name].status);
+    }
+    poll();
+    const interval = setInterval(poll, 3000);
+    return () => clearInterval(interval);
   }, [saved, name]);
 
   function confirmName() {
