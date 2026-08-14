@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function CloserControl() {
   const [name, setName] = useState("");
   const [saved, setSaved] = useState(false);
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
+  const registeredRef = useRef(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("closerName");
@@ -18,14 +19,18 @@ export default function CloserControl() {
 
   useEffect(() => {
     if (!saved || !name) return;
+    registeredRef.current = false;
     async function poll() {
       const data = await fetch("/api/status", { cache: "no-store" }).then((r) => r.json());
       if (!data[name]) {
-        localStorage.removeItem("closerName");
-        setSaved(false);
-        setStatus(null);
+        if (registeredRef.current) {
+          localStorage.removeItem("closerName");
+          setSaved(false);
+          setStatus(null);
+        }
         return;
       }
+      registeredRef.current = true;
       setStatus(data[name].status);
     }
     poll();
