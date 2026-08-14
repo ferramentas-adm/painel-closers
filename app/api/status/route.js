@@ -1,4 +1,4 @@
-import { getAll, setStatus, removeCloser } from "@/lib/store";
+import { getAll, setStatus, removeCloser, clearAll } from "@/lib/store";
 
 export async function GET() {
   const all = await getAll();
@@ -20,7 +20,11 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
-  const { name } = await request.json();
+  const { name, all } = await request.json();
+  if (all) {
+    await clearAll();
+    return Response.json({ ok: true });
+  }
   if (!name) {
     return Response.json({ error: "name obrigatorio" }, { status: 400 });
   }

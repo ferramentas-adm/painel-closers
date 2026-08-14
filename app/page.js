@@ -58,11 +58,32 @@ export default function Painel() {
 
   const entries = Object.entries(closers).sort(([a], [b]) => a.localeCompare(b));
 
+  async function limparTudo() {
+    if (!confirm("Remover todos os closers do painel?")) return;
+    await fetch("/api/status", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ all: true }),
+    });
+    setClosers({});
+  }
+
   return (
     <main className="min-h-screen bg-neutral-950 text-white p-8">
-      <h1 className="text-4xl font-bold text-center mb-10 tracking-tight">
+      <h1 className="text-4xl font-bold text-center mb-2 tracking-tight">
         Painel de Status
       </h1>
+
+      {entries.length > 0 && (
+        <div className="text-center mb-8">
+          <button
+            onClick={limparTudo}
+            className="text-red-500 text-sm underline"
+          >
+            limpar tudo
+          </button>
+        </div>
+      )}
 
       {entries.length === 0 ? (
         <p className="text-center text-neutral-400 text-xl">
