@@ -99,7 +99,9 @@ export default function Painel() {
                 key={name}
                 className={`rounded-2xl p-6 shadow-lg border-4 flex flex-col items-center gap-2 ${
                   priority
-                    ? "bg-yellow-900 border-yellow-400"
+                    ? livre
+                      ? "bg-yellow-900 border-yellow-400 animate-pulse"
+                      : "bg-yellow-900 border-yellow-400"
                     : livre
                     ? "bg-green-950 border-green-500"
                     : "bg-red-950 border-red-500"
