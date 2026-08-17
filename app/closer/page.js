@@ -82,6 +82,10 @@ export default function CloserControl() {
         setAuthError("informe o numero da mesa");
         return;
       }
+      if (!email.trim()) {
+        setAuthError("informe o email do Google Workspace");
+        return;
+      }
     }
     setAuthError("");
     setLoading(true);
@@ -190,7 +194,7 @@ export default function CloserControl() {
             )}
             {mode === "register" && (
               <Field
-                label="Email do Google Workspace (opcional)"
+                label="Email do Google Workspace"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && submitAuth()}
