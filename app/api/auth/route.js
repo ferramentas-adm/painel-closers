@@ -1,6 +1,16 @@
 import { createAccount, verifyLogin } from "@/lib/store";
 import { createSessionCookie, clearSessionCookie } from "@/lib/session";
+import { getFullNameFromDirectory } from "@/lib/google-calendar";
 import { authSchema } from "@/lib/schemas";
+
+function nomeFromEmail(email) {
+  const prefixo = email.split("@")[0];
+  return prefixo
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((parte) => parte[0].toUpperCase() + parte.slice(1))
+    .join(" ");
+}
 
 export async function POST(request) {
   const body = await request.json().catch(() => null);
@@ -8,12 +18,13 @@ export async function POST(request) {
   if (!parsed.success) {
     return Response.json({ error: "dados invalidos" }, { status: 400 });
   }
-  const { action, name, password, mesa, email } = parsed.data;
+  const { action, email, password, mesa } = parsed.data;
 
   if (action === "register") {
-    const account = await createAccount(name, password, mesa, email);
+    const nome = (await getFullNameFromDirectory(email)) || nomeFromEmail(email);
+    const account = await createAccount(password, mesa, email, nome);
     if (!account) {
-      return Response.json({ error: "nome ja cadastrado" }, { status: 409 });
+      return Response.json({ error: "email ja cadastrado" }, { status: 409 });
     }
     return Response.json(
       { name: account.displayName },
@@ -21,9 +32,9 @@ export async function POST(request) {
     );
   }
 
-  const account = await verifyLogin(name, password);
+  const account = await verifyLogin(email, password);
   if (!account) {
-    return Response.json({ error: "nome ou senha invalidos" }, { status: 401 });
+    return Response.json({ error: "email ou senha invalidos" }, { status: 401 });
   }
   return Response.json(
     { name: account.displayName },

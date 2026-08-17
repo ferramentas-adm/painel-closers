@@ -16,9 +16,9 @@ function Field({ label, ...props }) {
 
 export default function CloserControl() {
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mesa, setMesa] = useState("");
-  const [email, setEmail] = useState("");
   const [mode, setMode] = useState("login");
   const [authError, setAuthError] = useState("");
   const [saved, setSaved] = useState(false);
@@ -72,27 +72,17 @@ export default function CloserControl() {
   }, [saved]);
 
   async function submitAuth() {
-    if (!name.trim() || !password) return;
-    if (mode === "register") {
-      if (!name.trim().includes(" ")) {
-        setAuthError("digite nome e sobrenome");
-        return;
-      }
-      if (!mesa.trim()) {
-        setAuthError("informe o numero da mesa");
-        return;
-      }
-      if (!email.trim()) {
-        setAuthError("informe o email do Google Workspace");
-        return;
-      }
+    if (!email.trim() || !password) return;
+    if (mode === "register" && !mesa.trim()) {
+      setAuthError("informe o numero da mesa");
+      return;
     }
     setAuthError("");
     setLoading(true);
     const res = await fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: mode, name, password, mesa, email }),
+      body: JSON.stringify({ action: mode, email, password, mesa }),
     });
     const data = await res.json();
     setLoading(false);
@@ -168,11 +158,22 @@ export default function CloserControl() {
           </div>
 
           <div className="bg-neutral-950 border border-neutral-900 rounded-2xl p-6 flex flex-col gap-4">
+            {mode === "register" && (
+              <Field
+                label="Numero da mesa"
+                value={mesa}
+                onChange={(e) => setMesa(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && submitAuth()}
+                placeholder="Ex: 12"
+              />
+            )}
             <Field
-              label="Nome"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: Joao Silva"
+              label="Email do Google Workspace"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitAuth()}
+              placeholder="voce@empresa.com"
               autoFocus
             />
             <Field
@@ -183,24 +184,6 @@ export default function CloserControl() {
               onKeyDown={(e) => e.key === "Enter" && submitAuth()}
               placeholder="••••••"
             />
-            {mode === "register" && (
-              <Field
-                label="Numero da mesa"
-                value={mesa}
-                onChange={(e) => setMesa(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && submitAuth()}
-                placeholder="Ex: 12"
-              />
-            )}
-            {mode === "register" && (
-              <Field
-                label="Email do Google Workspace"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && submitAuth()}
-                placeholder="voce@empresa.com"
-              />
-            )}
 
             {authError && (
               <p className="text-red-400 text-sm text-center bg-red-500/10 border border-red-500/20 rounded-lg py-2">
