@@ -1,5 +1,6 @@
 import { getAll, setStatus, removeCloser, clearAll } from "@/lib/store";
 import { readSessionName } from "@/lib/session";
+import { isAdminRequest } from "@/lib/admin-session";
 import { statusUpdateSchema, statusDeleteSchema } from "@/lib/schemas";
 
 export async function GET() {
@@ -31,6 +32,9 @@ export async function DELETE(request) {
   }
 
   if (parsed.data.all) {
+    if (!isAdminRequest(request)) {
+      return Response.json({ error: "nao autorizado" }, { status: 401 });
+    }
     await clearAll();
     return Response.json({ ok: true });
   }

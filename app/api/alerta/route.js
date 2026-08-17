@@ -1,5 +1,6 @@
 import { setAlertaTi, clearAlertaTiByDisplayName } from "@/lib/store";
 import { readSessionName } from "@/lib/session";
+import { isAdminRequest } from "@/lib/admin-session";
 import { alertaSchema, alertaClearSchema } from "@/lib/schemas";
 
 export async function POST(request) {
@@ -18,8 +19,11 @@ export async function POST(request) {
   return Response.json({ ok: true });
 }
 
-// Resolver alerta pelo proprio painel (sem login, mesmo padrao do "limpar tudo").
 export async function DELETE(request) {
+  if (!isAdminRequest(request)) {
+    return Response.json({ error: "nao autorizado" }, { status: 401 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = alertaClearSchema.safeParse(body);
   if (!parsed.success) {

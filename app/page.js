@@ -124,20 +124,28 @@ export default function Painel() {
 
   async function limparTudo() {
     if (!confirm("Remover todos os closers do painel?")) return;
-    await fetch("/api/status", {
+    const res = await fetch("/api/status", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ all: true }),
     });
+    if (res.status === 401) {
+      alert("Precisa estar logado como admin. Acesse /admin.");
+      return;
+    }
     setClosers({});
   }
 
   async function resolverAlerta(name) {
-    await fetch("/api/alerta", {
+    const res = await fetch("/api/alerta", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name }),
     });
+    if (res.status === 401) {
+      alert("Precisa estar logado como admin. Acesse /admin.");
+      return;
+    }
     setClosers((prev) => ({
       ...prev,
       [name]: { ...prev[name], alertaTi: null },
@@ -214,6 +222,12 @@ export default function Painel() {
           </div>
         </div>
       )}
+
+      <div className="text-center mt-10">
+        <a href="/admin" className="text-neutral-700 text-xs">
+          admin
+        </a>
+      </div>
     </main>
   );
 }
