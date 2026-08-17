@@ -6,6 +6,7 @@ export default function CloserControl() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [mesa, setMesa] = useState("");
+  const [email, setEmail] = useState("");
   const [mode, setMode] = useState("login");
   const [authError, setAuthError] = useState("");
   const [saved, setSaved] = useState(false);
@@ -61,7 +62,7 @@ export default function CloserControl() {
     const res = await fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: mode, name, password, mesa }),
+      body: JSON.stringify({ action: mode, name, password, mesa, email }),
     });
     const data = await res.json();
     setLoading(false);
@@ -149,6 +150,15 @@ export default function CloserControl() {
               onChange={(e) => setMesa(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitAuth()}
               placeholder="Numero da mesa"
+            />
+          )}
+          {mode === "register" && (
+            <input
+              className="rounded-lg px-4 py-3 bg-neutral-800 text-white placeholder-neutral-500 border border-neutral-700 text-lg"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitAuth()}
+              placeholder="Email do Google Workspace (opcional, sincroniza a agenda)"
             />
           )}
           {authError && (

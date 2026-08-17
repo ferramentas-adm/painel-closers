@@ -8,10 +8,10 @@ export async function POST(request) {
   if (!parsed.success) {
     return Response.json({ error: "dados invalidos" }, { status: 400 });
   }
-  const { action, name, password, mesa } = parsed.data;
+  const { action, name, password, mesa, email } = parsed.data;
 
   if (action === "register") {
-    const account = await createAccount(name, password, mesa);
+    const account = await createAccount(name, password, mesa, email);
     if (!account) {
       return Response.json({ error: "nome ja cadastrado" }, { status: 409 });
     }
