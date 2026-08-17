@@ -2,6 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 
+function Field({ label, ...props }) {
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="text-xs font-medium text-neutral-500">{label}</span>
+      <input
+        className="rounded-xl px-4 py-3 bg-neutral-900 text-white placeholder-neutral-600 border border-neutral-800 text-base focus:outline-none focus:border-neutral-600 transition-colors"
+        {...props}
+      />
+    </label>
+  );
+}
+
 export default function CloserControl() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -137,145 +149,170 @@ export default function CloserControl() {
 
   if (!saved) {
     return (
-      <main className="min-h-screen bg-neutral-950 text-white flex items-center justify-center p-6">
-        <div className="flex flex-col gap-4 w-full max-w-sm">
-          <h1 className="text-2xl font-bold text-center">
-            {mode === "login" ? "Entrar" : "Criar cadastro"}
-          </h1>
-          <input
-            className="rounded-lg px-4 py-3 bg-neutral-800 text-white placeholder-neutral-500 border border-neutral-700 text-lg"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nome"
-            autoFocus
-          />
-          <input
-            className="rounded-lg px-4 py-3 bg-neutral-800 text-white placeholder-neutral-500 border border-neutral-700 text-lg"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && submitAuth()}
-            placeholder="Senha"
-          />
-          {mode === "register" && (
-            <input
-              className="rounded-lg px-4 py-3 bg-neutral-800 text-white placeholder-neutral-500 border border-neutral-700 text-lg"
-              value={mesa}
-              onChange={(e) => setMesa(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && submitAuth()}
-              placeholder="Numero da mesa"
+      <main className="min-h-screen bg-[#0a0b0d] text-white flex items-center justify-center p-6">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-8">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/15 text-2xl">
+              👤
+            </div>
+            <h1 className="text-xl font-bold">
+              {mode === "login" ? "Entrar" : "Criar cadastro"}
+            </h1>
+            <p className="text-neutral-500 text-sm mt-1">
+              Painel de status dos closers
+            </p>
+          </div>
+
+          <div className="bg-neutral-950 border border-neutral-900 rounded-2xl p-6 flex flex-col gap-4">
+            <Field
+              label="Nome"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ex: Joao Silva"
+              autoFocus
             />
-          )}
-          {mode === "register" && (
-            <input
-              className="rounded-lg px-4 py-3 bg-neutral-800 text-white placeholder-neutral-500 border border-neutral-700 text-lg"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+            <Field
+              label="Senha"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitAuth()}
-              placeholder="Email do Google Workspace (opcional, sincroniza a agenda)"
+              placeholder="••••••"
             />
-          )}
-          {authError && (
-            <p className="text-red-500 text-sm text-center">{authError}</p>
-          )}
-          <button
-            disabled={loading}
-            onClick={submitAuth}
-            className="bg-blue-600 hover:bg-blue-500 rounded-lg py-3 text-lg font-semibold"
-          >
-            {mode === "login" ? "Entrar" : "Cadastrar"}
-          </button>
+            {mode === "register" && (
+              <Field
+                label="Numero da mesa"
+                value={mesa}
+                onChange={(e) => setMesa(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && submitAuth()}
+                placeholder="Ex: 12"
+              />
+            )}
+            {mode === "register" && (
+              <Field
+                label="Email do Google Workspace (opcional)"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && submitAuth()}
+                placeholder="voce@empresa.com"
+              />
+            )}
+
+            {authError && (
+              <p className="text-red-400 text-sm text-center bg-red-500/10 border border-red-500/20 rounded-lg py-2">
+                {authError}
+              </p>
+            )}
+
+            <button
+              disabled={loading}
+              onClick={submitAuth}
+              className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-xl py-3 text-base font-semibold transition-colors"
+            >
+              {mode === "login" ? "Entrar" : "Cadastrar"}
+            </button>
+          </div>
+
           <button
             onClick={() => {
               setMode(mode === "login" ? "register" : "login");
               setAuthError("");
             }}
-            className="text-neutral-500 text-sm underline"
+            className="w-full text-center text-neutral-500 hover:text-neutral-300 text-sm mt-5 transition-colors"
           >
-            {mode === "login" ? "criar cadastro" : "ja tenho cadastro"}
+            {mode === "login" ? "Ainda nao tenho cadastro" : "Ja tenho cadastro"}
           </button>
         </div>
       </main>
     );
   }
 
+  const livre = status === "livre";
+
   return (
-    <main className="min-h-screen bg-neutral-950 text-white flex flex-col items-center justify-center gap-8 p-6">
-      <h1 className="text-3xl font-bold">Ola, {name}</h1>
-      <p className="text-neutral-400">
-        Status atual:{" "}
-        <span className="font-semibold">
-          {status === "livre" ? "Livre" : status === "ocupado" ? "Ocupado" : "-"}
+    <main className="min-h-screen bg-[#0a0b0d] text-white flex flex-col items-center justify-center gap-6 p-6">
+      <div className="w-full max-w-xs text-center">
+        <h1 className="text-2xl font-bold">Ola, {name}</h1>
+        <span
+          className={`inline-block mt-2 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
+            status
+              ? livre
+                ? "bg-emerald-500/15 text-emerald-400"
+                : "bg-rose-500/15 text-rose-400"
+              : "bg-neutral-800 text-neutral-500"
+          }`}
+        >
+          {livre ? "Livre" : status === "ocupado" ? "Ocupado" : "Sem status"}
         </span>
-      </p>
+      </div>
 
       {evento && (
-        <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-4 w-full max-w-xs text-sm">
+        <div className="bg-neutral-950 border border-neutral-900 rounded-2xl p-4 w-full max-w-xs text-sm">
           <p className="font-semibold text-white mb-1">{evento.titulo}</p>
-          <p className="text-neutral-400">
+          <p className="text-neutral-500">
             {new Date(evento.inicio).toLocaleTimeString("pt-BR", {
               hour: "2-digit",
               minute: "2-digit",
             })}
-            {" - "}
+            {" – "}
             {new Date(evento.fim).toLocaleTimeString("pt-BR", {
               hour: "2-digit",
               minute: "2-digit",
             })}
           </p>
           {evento.participantes.length > 0 && (
-            <p className="text-neutral-400 mt-1">
+            <p className="text-neutral-500 mt-1">
               com {evento.participantes.join(", ")}
             </p>
           )}
         </div>
       )}
 
-      <div className="flex flex-col gap-4 w-full max-w-xs">
+      <div className="flex flex-col gap-3 w-full max-w-xs">
         <button
           disabled={loading}
           onClick={() => update("livre")}
-          className={`rounded-2xl py-6 text-2xl font-bold ${
+          className={`rounded-2xl py-5 text-xl font-bold transition-colors disabled:opacity-50 ${
             status === "livre"
-              ? "bg-green-500 text-black"
-              : "bg-neutral-800 hover:bg-green-900"
+              ? "bg-emerald-500 text-black"
+              : "bg-neutral-900 border border-neutral-800 hover:border-emerald-600/50"
           }`}
         >
-          LIVRE
+          Livre
         </button>
         <button
           disabled={loading}
           onClick={() => update("ocupado")}
-          className={`rounded-2xl py-6 text-2xl font-bold ${
+          className={`rounded-2xl py-5 text-xl font-bold transition-colors disabled:opacity-50 ${
             status === "ocupado"
-              ? "bg-red-500 text-black"
-              : "bg-neutral-800 hover:bg-red-900"
+              ? "bg-rose-500 text-black"
+              : "bg-neutral-900 border border-neutral-800 hover:border-rose-600/50"
           }`}
         >
-          OCUPADO
+          Ocupado
         </button>
         <button
           onClick={toggleAlerta}
-          className={`rounded-2xl py-6 text-2xl font-bold ${
+          className={`rounded-2xl py-4 text-base font-semibold transition-colors ${
             alertaAtiva
-              ? "bg-orange-500 text-black animate-pulse"
-              : "bg-neutral-800 hover:bg-orange-900"
+              ? "bg-orange-500 text-black animate-soft-pulse"
+              : "bg-neutral-900 border border-neutral-800 hover:border-orange-600/50 text-orange-400"
           }`}
         >
-          {alertaAtiva ? "🆘 T.I. A CAMINHO - CANCELAR" : "🆘 CHAMAR T.I."}
+          {alertaAtiva ? "🆘 T.I. a caminho — cancelar" : "🆘 Chamar T.I."}
         </button>
       </div>
 
-      <div className="flex gap-6">
-        <button onClick={sairSessao} className="text-neutral-500 text-sm underline">
+      <div className="flex gap-6 mt-2">
+        <button onClick={sairSessao} className="text-neutral-600 hover:text-neutral-400 text-xs transition-colors">
           sair da conta
         </button>
         <button
           disabled={loading}
           onClick={sair}
-          className="text-red-500 text-sm underline"
+          className="text-neutral-600 hover:text-red-400 text-xs transition-colors"
         >
-          sair (remover do painel)
+          remover do painel
         </button>
       </div>
     </main>

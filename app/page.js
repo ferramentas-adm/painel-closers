@@ -31,39 +31,50 @@ function Card({ name, info, now, priorityNames }) {
   const livre = info.status === "livre";
   const priority = isPriority(name, priorityNames);
   const alerta = !!info.alertaTi;
+
+  const accent = alerta
+    ? "border-orange-500/70 bg-orange-500/[0.07]"
+    : priority
+    ? "border-amber-400/70 bg-amber-400/[0.06]"
+    : livre
+    ? "border-emerald-500/50 bg-emerald-500/[0.05]"
+    : "border-rose-500/50 bg-rose-500/[0.05]";
+
   return (
     <div
-      className={`rounded-2xl p-6 shadow-lg border-4 flex flex-col items-center gap-2 ${
-        alerta
-          ? "bg-orange-950 border-orange-400 animate-pulse"
-          : priority
-          ? livre
-            ? "bg-yellow-900 border-yellow-400 animate-pulse"
-            : "bg-yellow-900 border-yellow-400"
-          : livre
-          ? "bg-green-950 border-green-500"
-          : "bg-red-950 border-red-500"
+      className={`relative rounded-2xl border ${accent} p-5 flex flex-col items-center gap-2 transition-colors ${
+        alerta || (priority && livre) ? "animate-soft-pulse" : ""
       }`}
     >
-      <span className="text-2xl font-semibold text-center">
-        {priority ? "💎 " : ""}
+      {info.mesa && (
+        <span className="absolute top-3 right-4 text-[11px] font-medium text-neutral-500 tabular-nums">
+          mesa {info.mesa}
+        </span>
+      )}
+
+      <span className="text-xl font-semibold text-center leading-tight pr-2">
+        {priority && <span className="mr-1">💎</span>}
         {name}
       </span>
-      {info.mesa && (
-        <span className="text-neutral-400 text-sm">mesa {info.mesa}</span>
-      )}
+
       <span
-        className={`text-lg font-bold uppercase tracking-wide ${
-          livre ? "text-green-400" : "text-red-400"
+        className={`text-[11px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
+          livre
+            ? "bg-emerald-500/15 text-emerald-400"
+            : "bg-rose-500/15 text-rose-400"
         }`}
       >
         {livre ? "Livre" : "Ocupado"}
       </span>
-      <span className="text-neutral-100 text-2xl font-bold tabular-nums">
+
+      <span className="text-white text-3xl font-bold tabular-nums mt-1">
         {formatElapsed(now - info.changedAt)}
       </span>
+
       {alerta && (
-        <span className="text-orange-400 font-bold text-sm">🆘 CHAMOU T.I.</span>
+        <span className="text-orange-400 font-semibold text-xs mt-1">
+          🆘 chamou T.I.
+        </span>
       )}
     </div>
   );
@@ -71,10 +82,25 @@ function Card({ name, info, now, priorityNames }) {
 
 function Grid({ items, now, priorityNames }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       {items.map(([name, info]) => (
         <Card key={name} name={name} info={info} now={now} priorityNames={priorityNames} />
       ))}
+    </div>
+  );
+}
+
+function SectionHeader({ label, count, color }) {
+  return (
+    <div className="flex items-center gap-3 mb-4">
+      <span className={`h-2 w-2 rounded-full ${color}`} />
+      <h2 className="text-sm font-semibold uppercase tracking-widest text-neutral-400">
+        {label}
+      </h2>
+      <span className="text-xs font-semibold text-neutral-600 bg-neutral-900 border border-neutral-800 rounded-full px-2 py-0.5">
+        {count}
+      </span>
+      <div className="flex-1 h-px bg-neutral-900" />
     </div>
   );
 }
@@ -153,25 +179,44 @@ export default function Painel() {
   }
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-white p-8">
-      <h1 className="text-4xl font-bold text-center mb-2 tracking-tight">
-        Painel de Status
-      </h1>
+    <main className="min-h-screen bg-[#0a0b0d] text-white px-6 py-8 sm:px-10">
+      <header className="max-w-6xl mx-auto flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Painel de Status</h1>
+          <p className="text-neutral-500 text-sm mt-0.5">
+            Atualiza automaticamente a cada poucos segundos
+          </p>
+        </div>
+        {entries.length > 0 && (
+          <button
+            onClick={limparTudo}
+            className="text-neutral-500 hover:text-red-400 text-xs font-medium transition-colors"
+          >
+            limpar tudo
+          </button>
+        )}
+      </header>
 
       {alertas.length > 0 && (
         <div className="max-w-6xl mx-auto mb-8 flex flex-col gap-2">
           {alertas.map(([name, info]) => (
             <div
               key={name}
-              className="bg-orange-600 text-black rounded-xl px-6 py-4 flex items-center justify-between animate-pulse"
+              className="bg-orange-500/10 border border-orange-500/40 rounded-2xl px-5 py-3.5 flex items-center justify-between gap-4"
             >
-              <span className="font-bold text-lg">
-                🆘 {name}
-                {info.mesa ? ` (mesa ${info.mesa})` : ""} precisa de T.I.
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500/20 text-lg">
+                  🆘
+                </span>
+                <span className="font-semibold text-orange-100">
+                  {name}
+                  {info.mesa ? ` · mesa ${info.mesa}` : ""}
+                  <span className="text-orange-300/80 font-normal"> precisa de T.I.</span>
+                </span>
+              </div>
               <button
                 onClick={() => resolverAlerta(name)}
-                className="bg-black text-white rounded-lg px-4 py-2 font-semibold"
+                className="bg-orange-500 hover:bg-orange-400 text-black rounded-lg px-4 py-2 text-sm font-semibold transition-colors shrink-0"
               >
                 Resolvido
               </button>
@@ -180,54 +225,42 @@ export default function Painel() {
         </div>
       )}
 
-      {entries.length > 0 && (
-        <div className="text-center mb-8">
-          <button
-            onClick={limparTudo}
-            className="text-red-500 text-sm underline"
-          >
-            limpar tudo
-          </button>
-        </div>
-      )}
-
       {entries.length === 0 ? (
-        <p className="text-center text-neutral-400 text-xl">
-          Nenhum closer cadastrado ainda. Acesse /closer para adicionar.
-        </p>
+        <div className="max-w-6xl mx-auto text-center py-24">
+          <p className="text-5xl mb-4">🗒️</p>
+          <p className="text-neutral-400 text-lg">Nenhum closer cadastrado ainda.</p>
+          <p className="text-neutral-600 text-sm mt-1">
+            Acesse <span className="text-neutral-400">/closer</span> para adicionar.
+          </p>
+        </div>
       ) : cycling ? (
         <div className="max-w-6xl mx-auto">
-          <h2
-            className={`text-2xl font-bold mb-4 uppercase tracking-wide ${
-              showingLivres ? "text-green-400" : "text-red-400"
-            }`}
-          >
-            {showingLivres ? `Livres (${livres.length})` : `Ocupados (${ocupados.length})`}
-          </h2>
+          <SectionHeader
+            label={showingLivres ? "Livres" : "Ocupados"}
+            count={showingLivres ? livres.length : ocupados.length}
+            color={showingLivres ? "bg-emerald-500" : "bg-rose-500"}
+          />
           <Grid items={showingLivres ? livres : ocupados} now={now} priorityNames={priorityNames} />
         </div>
       ) : (
-        <div className="max-w-6xl mx-auto flex flex-col gap-10">
+        <div className="max-w-6xl mx-auto flex flex-col gap-8">
           <div>
-            <h2 className="text-2xl font-bold mb-4 uppercase tracking-wide text-green-400">
-              Livres ({livres.length})
-            </h2>
+            <SectionHeader label="Livres" count={livres.length} color="bg-emerald-500" />
             <Grid items={livres} now={now} priorityNames={priorityNames} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold mb-4 uppercase tracking-wide text-red-400">
-              Ocupados ({ocupados.length})
-            </h2>
+            <SectionHeader label="Ocupados" count={ocupados.length} color="bg-rose-500" />
             <Grid items={ocupados} now={now} priorityNames={priorityNames} />
           </div>
         </div>
       )}
 
-      <div className="text-center mt-10">
-        <a href="/admin" className="text-neutral-700 text-xs">
-          admin
-        </a>
-      </div>
+      <a
+        href="/admin"
+        className="fixed bottom-3 right-4 text-neutral-800 hover:text-neutral-600 text-[11px] transition-colors"
+      >
+        admin
+      </a>
     </main>
   );
 }
