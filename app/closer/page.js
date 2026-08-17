@@ -12,6 +12,7 @@ export default function CloserControl() {
   const [saved, setSaved] = useState(false);
   const [status, setStatus] = useState(null);
   const [alertaAtiva, setAlertaAtiva] = useState(false);
+  const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(false);
   const registeredRef = useRef(false);
 
@@ -44,6 +45,19 @@ export default function CloserControl() {
     const interval = setInterval(poll, 3000);
     return () => clearInterval(interval);
   }, [saved, name]);
+
+  useEffect(() => {
+    if (!saved) return;
+    async function poll() {
+      const data = await fetch("/api/evento-atual", { cache: "no-store" })
+        .then((r) => r.json())
+        .catch(() => ({ evento: null }));
+      setEvento(data.evento ?? null);
+    }
+    poll();
+    const interval = setInterval(poll, 30000);
+    return () => clearInterval(interval);
+  }, [saved]);
 
   async function submitAuth() {
     if (!name.trim() || !password) return;
@@ -194,6 +208,28 @@ export default function CloserControl() {
           {status === "livre" ? "Livre" : status === "ocupado" ? "Ocupado" : "-"}
         </span>
       </p>
+
+      {evento && (
+        <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-4 w-full max-w-xs text-sm">
+          <p className="font-semibold text-white mb-1">{evento.titulo}</p>
+          <p className="text-neutral-400">
+            {new Date(evento.inicio).toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+            {" - "}
+            {new Date(evento.fim).toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
+          {evento.participantes.length > 0 && (
+            <p className="text-neutral-400 mt-1">
+              com {evento.participantes.join(", ")}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-col gap-4 w-full max-w-xs">
         <button
