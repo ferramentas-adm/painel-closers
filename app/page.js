@@ -34,7 +34,7 @@ function Card({ name, info, now, priorityNames }) {
 
   const accent = alerta
     ? "border-orange-500/70 bg-orange-500/[0.07]"
-    : priority
+    : priority && livre
     ? "border-amber-400/70 bg-amber-400/[0.06]"
     : livre
     ? "border-emerald-500/50 bg-emerald-500/[0.05]"
