@@ -135,18 +135,18 @@ export default function AdminPage() {
 
   if (!authed) {
     return (
-      <main className="min-h-screen bg-[#0a0b0d] text-white flex items-center justify-center p-6">
+      <main className="board-texture min-h-screen bg-[#0a0b0d] text-white flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-800 text-2xl">
-              🔐
+            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xl font-bold">
+              ◆
             </div>
-            <h1 className="text-xl font-bold">Admin</h1>
-            <p className="text-neutral-500 text-sm mt-1">Gestao do painel de closers</p>
+            <h1 className="font-mono text-lg font-bold uppercase tracking-widest">Admin</h1>
+            <p className="text-neutral-600 text-sm mt-1">Gestao do painel de closers</p>
           </div>
-          <div className="bg-neutral-950 border border-neutral-900 rounded-2xl p-6 flex flex-col gap-4">
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6 flex flex-col gap-4">
             <input
-              className="rounded-xl px-4 py-3 bg-neutral-900 text-white border border-neutral-800 text-base focus:outline-none focus:border-neutral-600"
+              className="rounded-lg px-4 py-3 bg-white/[0.03] text-white border border-white/[0.08] text-base focus:outline-none focus:border-cyan-500/50"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -161,7 +161,7 @@ export default function AdminPage() {
             )}
             <button
               onClick={login}
-              className="bg-blue-600 hover:bg-blue-500 rounded-xl py-3 text-base font-semibold transition-colors"
+              className="bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg py-3 text-sm font-bold uppercase tracking-wide transition-colors"
             >
               Entrar
             </button>
@@ -172,30 +172,32 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0b0d] text-white px-6 py-8 sm:px-10">
+    <main className="board-texture min-h-screen bg-[#0a0b0d] text-white px-6 py-8 sm:px-10">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 pb-5 border-b border-white/[0.06]">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Admin</h1>
-            <p className="text-neutral-500 text-sm mt-0.5">Gestao do painel de closers</p>
+            <h1 className="font-mono text-lg font-bold tracking-widest uppercase">
+              Admin<span className="text-cyan-400">/</span>Painel
+            </h1>
+            <p className="text-neutral-600 text-xs mt-0.5">Gestao do painel de closers</p>
           </div>
           <button
             onClick={logout}
-            className="text-neutral-500 hover:text-red-400 text-xs font-medium transition-colors"
+            className="text-neutral-600 hover:text-red-400 text-xs font-medium transition-colors"
           >
             sair
           </button>
         </div>
 
-        <div className="inline-flex p-1 rounded-xl bg-neutral-950 border border-neutral-900 mb-8">
+        <div className="inline-flex p-1 rounded-lg bg-white/[0.02] border border-white/[0.06] mb-8">
           {TABS.map(([key, label]) => (
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`px-4 py-2 rounded text-xs font-mono font-bold uppercase tracking-wider transition-colors ${
                 tab === key
-                  ? "bg-neutral-800 text-white"
-                  : "text-neutral-500 hover:text-neutral-300"
+                  ? "bg-cyan-500/15 text-cyan-400"
+                  : "text-neutral-600 hover:text-neutral-400"
               }`}
             >
               {label}
@@ -214,30 +216,39 @@ export default function AdminPage() {
             {colaboradores.map((c) => (
               <div
                 key={c.id}
-                className="bg-neutral-950 border border-neutral-900 rounded-2xl p-4 flex flex-wrap items-center gap-3"
+                className="relative overflow-hidden bg-white/[0.02] border border-white/[0.06] rounded-lg pl-4 pr-4 py-3.5 flex flex-wrap items-center gap-3"
               >
+                <span
+                  className={`absolute inset-y-0 left-0 w-1 ${
+                    c.status === "livre"
+                      ? "bg-emerald-500"
+                      : c.status === "ocupado"
+                      ? "bg-rose-500"
+                      : "bg-neutral-700"
+                  }`}
+                />
                 <div className="min-w-[160px]">
                   <p className="font-semibold">{c.nome}</p>
                   <span
-                    className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                    className={`font-mono text-[10px] font-bold uppercase tracking-wider ${
                       c.status === "livre"
-                        ? "bg-emerald-500/15 text-emerald-400"
+                        ? "text-emerald-400"
                         : c.status === "ocupado"
-                        ? "bg-rose-500/15 text-rose-400"
-                        : "bg-neutral-800 text-neutral-500"
+                        ? "text-rose-400"
+                        : "text-neutral-600"
                     }`}
                   >
-                    {c.status ?? "fora do painel"}
+                    [{c.status ?? "fora"}]
                   </span>
                 </div>
                 <input
-                  className="rounded-lg px-3 py-2 bg-neutral-900 border border-neutral-800 w-20 text-sm focus:outline-none focus:border-neutral-600"
+                  className="rounded-lg px-3 py-2 bg-white/[0.03] border border-white/[0.08] w-20 text-sm focus:outline-none focus:border-cyan-500/50"
                   value={c.mesa ?? ""}
                   onChange={(e) => updateField(c.id, "mesa", e.target.value)}
                   placeholder="mesa"
                 />
                 <input
-                  className="rounded-lg px-3 py-2 bg-neutral-900 border border-neutral-800 flex-1 min-w-[180px] text-sm focus:outline-none focus:border-neutral-600"
+                  className="rounded-lg px-3 py-2 bg-white/[0.03] border border-white/[0.08] flex-1 min-w-[180px] text-sm focus:outline-none focus:border-cyan-500/50"
                   value={c.email ?? ""}
                   onChange={(e) => updateField(c.id, "email", e.target.value)}
                   placeholder="email"
@@ -245,13 +256,13 @@ export default function AdminPage() {
                 <div className="flex gap-2 ml-auto">
                   <button
                     onClick={() => salvarColaborador(c)}
-                    className="bg-blue-600 hover:bg-blue-500 rounded-lg px-3 py-2 text-xs font-semibold transition-colors"
+                    className="bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg px-3 py-2 text-xs font-semibold transition-colors"
                   >
                     Salvar
                   </button>
                   <button
                     onClick={() => resetarSenha(c)}
-                    className="bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-lg px-3 py-2 text-xs font-semibold transition-colors"
+                    className="bg-white/[0.03] border border-white/[0.08] hover:border-cyan-500/40 rounded-lg px-3 py-2 text-xs font-semibold transition-colors"
                   >
                     Redefinir senha
                   </button>
@@ -277,13 +288,13 @@ export default function AdminPage() {
               maiusculas e acentos.
             </p>
             <textarea
-              className="rounded-xl px-4 py-3 bg-neutral-950 border border-neutral-900 h-64 font-mono text-sm focus:outline-none focus:border-neutral-600"
+              className="rounded-lg px-4 py-3 bg-white/[0.02] border border-white/[0.06] h-64 font-mono text-sm focus:outline-none focus:border-cyan-500/50"
               value={priorityText}
               onChange={(e) => setPriorityText(e.target.value)}
             />
             <button
               onClick={salvarPrioridade}
-              className="bg-blue-600 hover:bg-blue-500 rounded-xl py-3 font-semibold transition-colors"
+              className="bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg py-3 text-sm font-bold uppercase tracking-wide transition-colors"
             >
               Salvar prioridade
             </button>
@@ -293,23 +304,28 @@ export default function AdminPage() {
         {tab === "metricas" && metrics && (
           <div className="flex flex-col gap-8">
             <div>
-              <h2 className="text-sm font-semibold uppercase tracking-widest text-neutral-500 mb-3">
-                Geral
+              <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-neutral-500 mb-3">
+                [ Geral ]
               </h2>
               <div className="grid grid-cols-2 gap-4 max-w-md">
                 {metrics.geral.map((g) => (
                   <div
                     key={g.status}
-                    className="bg-neutral-950 border border-neutral-900 rounded-2xl p-4"
+                    className="relative overflow-hidden bg-white/[0.02] border border-white/[0.06] rounded-lg pl-4 pr-4 py-3.5"
                   >
+                    <span
+                      className={`absolute inset-y-0 left-0 w-1 ${
+                        g.status === "livre" ? "bg-emerald-500" : "bg-rose-500"
+                      }`}
+                    />
                     <p
-                      className={`text-[11px] font-bold uppercase tracking-widest mb-2 ${
+                      className={`font-mono text-[11px] font-bold uppercase tracking-widest mb-2 ${
                         g.status === "livre" ? "text-emerald-400" : "text-rose-400"
                       }`}
                     >
                       {g.status}
                     </p>
-                    <p className="text-2xl font-bold tabular-nums">
+                    <p className="font-mono text-2xl font-bold tabular-nums">
                       {formatDuration(g.mediaMs)}
                     </p>
                     <p className="text-neutral-600 text-xs mt-1">
@@ -326,13 +342,13 @@ export default function AdminPage() {
             </div>
 
             <div>
-              <h2 className="text-sm font-semibold uppercase tracking-widest text-neutral-500 mb-3">
-                Por colaborador
+              <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-neutral-500 mb-3">
+                [ Por colaborador ]
               </h2>
-              <div className="overflow-x-auto rounded-2xl border border-neutral-900">
+              <div className="overflow-x-auto rounded-lg border border-white/[0.06]">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left text-neutral-500 border-b border-neutral-900 bg-neutral-950">
+                    <tr className="text-left text-neutral-500 border-b border-white/[0.06] bg-white/[0.02]">
                       <th className="py-3 px-4 font-medium">Nome</th>
                       <th className="py-3 px-4 font-medium">Media ocupado</th>
                       <th className="py-3 px-4 font-medium">Total ocupado</th>
@@ -342,12 +358,12 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {metrics.porColaborador.map((c) => (
-                      <tr key={c.nome} className="border-b border-neutral-900 last:border-0">
+                      <tr key={c.nome} className="border-b border-white/[0.06] last:border-0">
                         <td className="py-3 px-4 font-semibold">{c.nome}</td>
-                        <td className="py-3 px-4 tabular-nums">{formatDuration(c.ocupado.mediaMs)}</td>
-                        <td className="py-3 px-4 tabular-nums">{formatDuration(c.ocupado.totalMs)}</td>
-                        <td className="py-3 px-4 tabular-nums">{formatDuration(c.livre.mediaMs)}</td>
-                        <td className="py-3 px-4 tabular-nums">{formatDuration(c.livre.totalMs)}</td>
+                        <td className="py-3 px-4 font-mono tabular-nums">{formatDuration(c.ocupado.mediaMs)}</td>
+                        <td className="py-3 px-4 font-mono tabular-nums">{formatDuration(c.ocupado.totalMs)}</td>
+                        <td className="py-3 px-4 font-mono tabular-nums">{formatDuration(c.livre.mediaMs)}</td>
+                        <td className="py-3 px-4 font-mono tabular-nums">{formatDuration(c.livre.totalMs)}</td>
                       </tr>
                     ))}
                   </tbody>

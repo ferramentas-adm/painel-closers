@@ -22,9 +22,13 @@ function formatElapsed(ms) {
   const h = Math.floor(totalSeconds / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
-  if (h > 0) return `${h}h ${m}min`;
-  if (m > 0) return `${m}min ${s}s`;
+  if (h > 0) return `${h}h${String(m).padStart(2, "0")}m`;
+  if (m > 0) return `${m}m${String(s).padStart(2, "0")}s`;
   return `${s}s`;
+}
+
+function formatClock(date) {
+  return date.toLocaleTimeString("pt-BR", { hour12: false });
 }
 
 function Card({ name, info, now, priorityNames }) {
@@ -32,48 +36,53 @@ function Card({ name, info, now, priorityNames }) {
   const priority = isPriority(name, priorityNames);
   const alerta = !!info.alertaTi;
 
-  const accent = alerta
-    ? "border-orange-500/70 bg-orange-500/[0.07]"
+  const stripColor = alerta
+    ? "bg-orange-500"
     : priority && livre
-    ? "border-amber-400/70 bg-amber-400/[0.06]"
+    ? "bg-amber-400"
     : livre
-    ? "border-emerald-500/50 bg-emerald-500/[0.05]"
-    : "border-rose-500/50 bg-rose-500/[0.05]";
+    ? "bg-emerald-500"
+    : "bg-rose-500";
+
+  const labelColor = alerta
+    ? "text-orange-400"
+    : priority && livre
+    ? "text-amber-300"
+    : livre
+    ? "text-emerald-400"
+    : "text-rose-400";
 
   return (
     <div
-      className={`relative rounded-2xl border ${accent} p-5 flex flex-col items-center gap-2 transition-colors ${
+      className={`relative overflow-hidden rounded-lg border border-white/[0.06] bg-white/[0.02] pl-4 pr-4 py-4 flex flex-col gap-1.5 ${
         alerta || (priority && livre) ? "animate-soft-pulse" : ""
       }`}
     >
-      {info.mesa && (
-        <span className="absolute top-3 right-4 text-[11px] font-medium text-neutral-500 tabular-nums">
-          mesa {info.mesa}
+      <span className={`absolute inset-y-0 left-0 w-1 ${stripColor}`} />
+
+      <div className="flex items-start justify-between gap-2">
+        <span className="text-base font-semibold leading-snug pr-1">
+          {priority && <span className="mr-1 text-amber-300">◆</span>}
+          {name}
         </span>
-      )}
+        {info.mesa && (
+          <span className="shrink-0 font-mono text-[10px] text-neutral-500 tabular-nums mt-0.5">
+            M{info.mesa}
+          </span>
+        )}
+      </div>
 
-      <span className="text-xl font-semibold text-center leading-tight pr-2">
-        {priority && <span className="mr-1">💎</span>}
-        {name}
+      <span className={`font-mono text-[10px] font-bold uppercase tracking-[0.15em] ${labelColor}`}>
+        [{livre ? "LIVRE" : "OCUPADO"}]
       </span>
 
-      <span
-        className={`text-[11px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
-          livre
-            ? "bg-emerald-500/15 text-emerald-400"
-            : "bg-rose-500/15 text-rose-400"
-        }`}
-      >
-        {livre ? "Livre" : "Ocupado"}
-      </span>
-
-      <span className="text-white text-3xl font-bold tabular-nums mt-1">
+      <span className="font-mono text-white text-2xl font-bold tabular-nums mt-1">
         {formatElapsed(now - info.changedAt)}
       </span>
 
       {alerta && (
-        <span className="text-orange-400 font-semibold text-xs mt-1">
-          🆘 chamou T.I.
+        <span className="text-orange-400 font-semibold text-[11px] mt-0.5">
+          ▲ chamou T.I.
         </span>
       )}
     </div>
@@ -82,7 +91,7 @@ function Card({ name, info, now, priorityNames }) {
 
 function Grid({ items, now, priorityNames }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
       {items.map(([name, info]) => (
         <Card key={name} name={name} info={info} now={now} priorityNames={priorityNames} />
       ))}
@@ -92,15 +101,13 @@ function Grid({ items, now, priorityNames }) {
 
 function SectionHeader({ label, count, color }) {
   return (
-    <div className="flex items-center gap-3 mb-4">
-      <span className={`h-2 w-2 rounded-full ${color}`} />
-      <h2 className="text-sm font-semibold uppercase tracking-widest text-neutral-400">
-        {label}
+    <div className="flex items-center gap-3 mb-3">
+      <span className={`h-1.5 w-1.5 ${color}`} />
+      <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-neutral-400">
+        [ {label} ]
       </h2>
-      <span className="text-xs font-semibold text-neutral-600 bg-neutral-900 border border-neutral-800 rounded-full px-2 py-0.5">
-        {count}
-      </span>
-      <div className="flex-1 h-px bg-neutral-900" />
+      <span className="font-mono text-[11px] text-neutral-600">{count}</span>
+      <div className="flex-1 h-px bg-white/[0.06]" />
     </div>
   );
 }
@@ -179,22 +186,32 @@ export default function Painel() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0b0d] text-white px-6 py-8 sm:px-10">
-      <header className="max-w-6xl mx-auto flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Painel de Status</h1>
-          <p className="text-neutral-500 text-sm mt-0.5">
-            Atualiza automaticamente a cada poucos segundos
-          </p>
+    <main className="board-texture min-h-screen bg-[#0a0b0d] text-white px-6 py-8 sm:px-10">
+      <header className="max-w-6xl mx-auto flex items-center justify-between mb-8 pb-5 border-b border-white/[0.06]">
+        <div className="flex items-center gap-3">
+          <span className="live-dot h-2 w-2 rounded-full bg-cyan-400" />
+          <div>
+            <h1 className="font-mono text-lg font-bold tracking-widest uppercase">
+              Painel<span className="text-cyan-400">/</span>Status
+            </h1>
+            <p className="text-neutral-600 text-xs mt-0.5">
+              atualiza automaticamente
+            </p>
+          </div>
         </div>
-        {entries.length > 0 && (
-          <button
-            onClick={limparTudo}
-            className="text-neutral-500 hover:text-red-400 text-xs font-medium transition-colors"
-          >
-            limpar tudo
-          </button>
-        )}
+        <div className="flex items-center gap-5">
+          <span className="font-mono text-neutral-500 text-sm tabular-nums hidden sm:block">
+            {formatClock(new Date(now))}
+          </span>
+          {entries.length > 0 && (
+            <button
+              onClick={limparTudo}
+              className="text-neutral-600 hover:text-red-400 text-xs font-medium transition-colors"
+            >
+              limpar tudo
+            </button>
+          )}
+        </div>
       </header>
 
       {alertas.length > 0 && (
@@ -202,21 +219,18 @@ export default function Painel() {
           {alertas.map(([name, info]) => (
             <div
               key={name}
-              className="bg-orange-500/10 border border-orange-500/40 rounded-2xl px-5 py-3.5 flex items-center justify-between gap-4"
+              className="relative overflow-hidden bg-orange-500/10 border border-orange-500/30 rounded-lg pl-4 pr-5 py-3.5 flex items-center justify-between gap-4"
             >
-              <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500/20 text-lg">
-                  🆘
-                </span>
-                <span className="font-semibold text-orange-100">
-                  {name}
-                  {info.mesa ? ` · mesa ${info.mesa}` : ""}
-                  <span className="text-orange-300/80 font-normal"> precisa de T.I.</span>
-                </span>
-              </div>
+              <span className="absolute inset-y-0 left-0 w-1 bg-orange-500 animate-soft-pulse" />
+              <span className="font-semibold text-orange-100 text-sm">
+                <span className="text-orange-400 mr-1.5">▲</span>
+                {name}
+                {info.mesa ? ` · M${info.mesa}` : ""}
+                <span className="text-orange-300/80 font-normal"> precisa de T.I.</span>
+              </span>
               <button
                 onClick={() => resolverAlerta(name)}
-                className="bg-orange-500 hover:bg-orange-400 text-black rounded-lg px-4 py-2 text-sm font-semibold transition-colors shrink-0"
+                className="bg-orange-500 hover:bg-orange-400 text-black rounded px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors shrink-0"
               >
                 Resolvido
               </button>
@@ -227,7 +241,9 @@ export default function Painel() {
 
       {entries.length === 0 ? (
         <div className="max-w-6xl mx-auto text-center py-24">
-          <p className="text-5xl mb-4">🗒️</p>
+          <p className="font-mono text-neutral-700 text-sm tracking-widest mb-3">
+            [ SEM DADOS ]
+          </p>
           <p className="text-neutral-400 text-lg">Nenhum closer cadastrado ainda.</p>
           <p className="text-neutral-600 text-sm mt-1">
             Acesse <span className="text-neutral-400">/closer</span> para adicionar.
@@ -257,9 +273,9 @@ export default function Painel() {
 
       <a
         href="/admin"
-        className="fixed bottom-3 right-4 text-neutral-800 hover:text-neutral-600 text-[11px] transition-colors"
+        className="fixed bottom-3 right-4 font-mono text-neutral-800 hover:text-neutral-600 text-[10px] transition-colors"
       >
-        admin
+        /admin
       </a>
     </main>
   );

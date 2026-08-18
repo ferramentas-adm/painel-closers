@@ -5,9 +5,11 @@ import { useEffect, useRef, useState } from "react";
 function Field({ label, ...props }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-xs font-medium text-neutral-500">{label}</span>
+      <span className="font-mono text-[11px] uppercase tracking-wider text-neutral-600">
+        {label}
+      </span>
       <input
-        className="rounded-xl px-4 py-3 bg-neutral-900 text-white placeholder-neutral-600 border border-neutral-800 text-base focus:outline-none focus:border-neutral-600 transition-colors"
+        className="rounded-lg px-4 py-3 bg-white/[0.03] text-white placeholder-neutral-700 border border-white/[0.08] text-base focus:outline-none focus:border-cyan-500/50 transition-colors"
         {...props}
       />
     </label>
@@ -179,21 +181,21 @@ export default function CloserControl() {
 
   if (!saved) {
     return (
-      <main className="min-h-screen bg-[#0a0b0d] text-white flex items-center justify-center p-6">
+      <main className="board-texture min-h-screen bg-[#0a0b0d] text-white flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/15 text-2xl">
-              👤
+            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xl font-bold">
+              ◆
             </div>
-            <h1 className="text-xl font-bold">
-              {mode === "login" ? "Entrar" : "Criar cadastro"}
+            <h1 className="font-mono text-lg font-bold uppercase tracking-widest">
+              {mode === "login" ? "Entrar" : "Cadastro"}
             </h1>
-            <p className="text-neutral-500 text-sm mt-1">
+            <p className="text-neutral-600 text-sm mt-1">
               Painel de status dos closers
             </p>
           </div>
 
-          <div className="bg-neutral-950 border border-neutral-900 rounded-2xl p-6 flex flex-col gap-4">
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6 flex flex-col gap-4">
             {mode === "register" && (
               <Field
                 label="Numero da mesa"
@@ -230,7 +232,7 @@ export default function CloserControl() {
             <button
               disabled={loading}
               onClick={submitAuth}
-              className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-xl py-3 text-base font-semibold transition-colors"
+              className="bg-cyan-500 hover:bg-cyan-400 text-black disabled:opacity-50 rounded-lg py-3 text-sm font-bold uppercase tracking-wide transition-colors"
             >
               {mode === "login" ? "Entrar" : "Cadastrar"}
             </button>
@@ -241,7 +243,7 @@ export default function CloserControl() {
               setMode(mode === "login" ? "register" : "login");
               setAuthError("");
             }}
-            className="w-full text-center text-neutral-500 hover:text-neutral-300 text-sm mt-5 transition-colors"
+            className="w-full text-center text-neutral-600 hover:text-neutral-400 text-sm mt-5 transition-colors"
           >
             {mode === "login" ? "Ainda nao tenho cadastro" : "Ja tenho cadastro"}
           </button>
@@ -253,26 +255,27 @@ export default function CloserControl() {
   const livre = status === "livre";
 
   return (
-    <main className="min-h-screen bg-[#0a0b0d] text-white flex flex-col items-center justify-center gap-6 p-6">
+    <main className="board-texture min-h-screen bg-[#0a0b0d] text-white flex flex-col items-center justify-center gap-5 p-6">
       <div className="w-full max-w-xs text-center">
-        <h1 className="text-2xl font-bold">Ola, {name}</h1>
+        <h1 className="text-xl font-bold">{name}</h1>
         <span
-          className={`inline-block mt-2 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
+          className={`inline-block mt-2 font-mono text-[11px] font-bold uppercase tracking-[0.15em] ${
             status
               ? livre
-                ? "bg-emerald-500/15 text-emerald-400"
-                : "bg-rose-500/15 text-rose-400"
-              : "bg-neutral-800 text-neutral-500"
+                ? "text-emerald-400"
+                : "text-rose-400"
+              : "text-neutral-600"
           }`}
         >
-          {livre ? "Livre" : status === "ocupado" ? "Ocupado" : "Sem status"}
+          [{livre ? "LIVRE" : status === "ocupado" ? "OCUPADO" : "SEM STATUS"}]
         </span>
       </div>
 
       {evento && (
-        <div className="bg-neutral-950 border border-neutral-900 rounded-2xl p-4 w-full max-w-xs text-sm">
+        <div className="relative overflow-hidden bg-white/[0.02] border border-white/[0.06] rounded-lg pl-4 pr-4 py-3 w-full max-w-xs text-sm">
+          <span className="absolute inset-y-0 left-0 w-1 bg-cyan-500/60" />
           <p className="font-semibold text-white mb-1">{evento.titulo}</p>
-          <p className="text-neutral-500">
+          <p className="font-mono text-neutral-500 text-xs">
             {new Date(evento.inicio).toLocaleTimeString("pt-BR", {
               hour: "2-digit",
               minute: "2-digit",
@@ -284,7 +287,7 @@ export default function CloserControl() {
             })}
           </p>
           {evento.participantes.length > 0 && (
-            <p className="text-neutral-500 mt-1">
+            <p className="text-neutral-500 mt-1 text-xs">
               com {evento.participantes.join(", ")}
             </p>
           )}
@@ -295,10 +298,10 @@ export default function CloserControl() {
         <button
           disabled={loading}
           onClick={() => update("livre")}
-          className={`rounded-2xl py-5 text-xl font-bold transition-colors disabled:opacity-50 ${
+          className={`rounded-lg py-4 text-lg font-bold uppercase tracking-wide transition-colors disabled:opacity-50 ${
             status === "livre"
               ? "bg-emerald-500 text-black"
-              : "bg-neutral-900 border border-neutral-800 hover:border-emerald-600/50"
+              : "bg-white/[0.02] border border-white/[0.08] hover:border-emerald-600/50"
           }`}
         >
           Livre
@@ -306,28 +309,28 @@ export default function CloserControl() {
         <button
           disabled={loading}
           onClick={() => update("ocupado")}
-          className={`rounded-2xl py-5 text-xl font-bold transition-colors disabled:opacity-50 ${
+          className={`rounded-lg py-4 text-lg font-bold uppercase tracking-wide transition-colors disabled:opacity-50 ${
             status === "ocupado"
               ? "bg-rose-500 text-black"
-              : "bg-neutral-900 border border-neutral-800 hover:border-rose-600/50"
+              : "bg-white/[0.02] border border-white/[0.08] hover:border-rose-600/50"
           }`}
         >
           Ocupado
         </button>
         <button
           onClick={toggleAlerta}
-          className={`rounded-2xl py-4 text-base font-semibold transition-colors ${
+          className={`rounded-lg py-3.5 text-sm font-bold uppercase tracking-wide transition-colors ${
             alertaAtiva
               ? "bg-orange-500 text-black animate-soft-pulse"
-              : "bg-neutral-900 border border-neutral-800 hover:border-orange-600/50 text-orange-400"
+              : "bg-white/[0.02] border border-white/[0.08] hover:border-orange-600/50 text-orange-400"
           }`}
         >
-          {alertaAtiva ? "🆘 T.I. a caminho — cancelar" : "🆘 Chamar T.I."}
+          {alertaAtiva ? "▲ T.I. a caminho — cancelar" : "▲ Chamar T.I."}
         </button>
       </div>
 
       {perfilAberto && (
-        <div className="bg-neutral-950 border border-neutral-900 rounded-2xl p-4 w-full max-w-xs flex flex-col gap-3">
+        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 w-full max-w-xs flex flex-col gap-3">
           <Field
             label="Numero da mesa"
             value={perfilMesa}
@@ -353,14 +356,14 @@ export default function CloserControl() {
           )}
           <button
             onClick={salvarPerfil}
-            className="bg-blue-600 hover:bg-blue-500 rounded-xl py-2.5 text-sm font-semibold transition-colors"
+            className="bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg py-2.5 text-sm font-bold uppercase tracking-wide transition-colors"
           >
             Salvar perfil
           </button>
         </div>
       )}
 
-      <div className="flex gap-6 mt-2">
+      <div className="flex gap-6 mt-1">
         <button onClick={abrirPerfil} className="text-neutral-600 hover:text-neutral-400 text-xs transition-colors">
           {perfilAberto ? "fechar perfil" : "editar perfil"}
         </button>
