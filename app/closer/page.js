@@ -26,6 +26,11 @@ export default function CloserControl() {
   const [alertaAtiva, setAlertaAtiva] = useState(false);
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [perfilAberto, setPerfilAberto] = useState(false);
+  const [perfilMesa, setPerfilMesa] = useState("");
+  const [perfilEmail, setPerfilEmail] = useState("");
+  const [perfilErro, setPerfilErro] = useState("");
+  const [perfilMsg, setPerfilMsg] = useState("");
   const registeredRef = useRef(false);
 
   useEffect(() => {
@@ -110,6 +115,37 @@ export default function CloserControl() {
     }
     setStatus(newStatus);
     setLoading(false);
+  }
+
+  async function abrirPerfil() {
+    if (perfilAberto) {
+      setPerfilAberto(false);
+      return;
+    }
+    setPerfilErro("");
+    setPerfilMsg("");
+    const perfil = await fetch("/api/perfil", { cache: "no-store" })
+      .then((r) => r.json())
+      .catch(() => null);
+    setPerfilMesa(perfil?.mesa ?? "");
+    setPerfilEmail(perfil?.email ?? "");
+    setPerfilAberto(true);
+  }
+
+  async function salvarPerfil() {
+    setPerfilErro("");
+    setPerfilMsg("");
+    const res = await fetch("/api/perfil", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mesa: perfilMesa, email: perfilEmail }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setPerfilErro(data.error ?? "erro");
+      return;
+    }
+    setPerfilMsg("Perfil atualizado.");
   }
 
   async function toggleAlerta() {
@@ -290,7 +326,44 @@ export default function CloserControl() {
         </button>
       </div>
 
+      {perfilAberto && (
+        <div className="bg-neutral-950 border border-neutral-900 rounded-2xl p-4 w-full max-w-xs flex flex-col gap-3">
+          <Field
+            label="Numero da mesa"
+            value={perfilMesa}
+            onChange={(e) => setPerfilMesa(e.target.value)}
+            placeholder="Ex: 12"
+          />
+          <Field
+            label="Email do Google Workspace"
+            type="email"
+            value={perfilEmail}
+            onChange={(e) => setPerfilEmail(e.target.value)}
+            placeholder="voce@ogruposilva.com.br"
+          />
+          {perfilErro && (
+            <p className="text-red-400 text-xs text-center bg-red-500/10 border border-red-500/20 rounded-lg py-2">
+              {perfilErro}
+            </p>
+          )}
+          {perfilMsg && (
+            <p className="text-emerald-400 text-xs text-center bg-emerald-500/10 border border-emerald-500/20 rounded-lg py-2">
+              {perfilMsg}
+            </p>
+          )}
+          <button
+            onClick={salvarPerfil}
+            className="bg-blue-600 hover:bg-blue-500 rounded-xl py-2.5 text-sm font-semibold transition-colors"
+          >
+            Salvar perfil
+          </button>
+        </div>
+      )}
+
       <div className="flex gap-6 mt-2">
+        <button onClick={abrirPerfil} className="text-neutral-600 hover:text-neutral-400 text-xs transition-colors">
+          {perfilAberto ? "fechar perfil" : "editar perfil"}
+        </button>
         <button onClick={sairSessao} className="text-neutral-600 hover:text-neutral-400 text-xs transition-colors">
           sair da conta
         </button>
