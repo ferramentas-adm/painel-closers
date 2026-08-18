@@ -16,7 +16,8 @@ export async function POST(request) {
   const body = await request.json().catch(() => null);
   const parsed = authSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json({ error: "dados invalidos" }, { status: 400 });
+    const message = parsed.error.issues[0]?.message ?? "dados invalidos";
+    return Response.json({ error: message }, { status: 400 });
   }
   const { action, email, password, mesa } = parsed.data;
 
