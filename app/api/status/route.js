@@ -1,9 +1,13 @@
-import { getAll, setStatus, removeCloser, clearAll } from "@/lib/store";
+import { getAll, setStatus, removeCloser, clearAll, registrarHeartbeat } from "@/lib/store";
 import { readSessionName } from "@/lib/session";
 import { isAdminRequest } from "@/lib/admin-session";
 import { statusUpdateSchema, statusDeleteSchema } from "@/lib/schemas";
 
-export async function GET() {
+export async function GET(request) {
+  const name = readSessionName(request);
+  if (name) {
+    await registrarHeartbeat(name);
+  }
   const all = await getAll();
   return Response.json(all);
 }
