@@ -18,6 +18,7 @@ function Field({ label, ...props }) {
 
 export default function CloserControl() {
   const [name, setName] = useState("");
+  const [cadastroNome, setCadastroNome] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mesa, setMesa] = useState("");
@@ -80,16 +81,22 @@ export default function CloserControl() {
 
   async function submitAuth() {
     if (!email.trim() || !password) return;
-    if (mode === "register" && !mesa.trim()) {
-      setAuthError("informe o numero da mesa");
-      return;
+    if (mode === "register") {
+      if (!cadastroNome.trim()) {
+        setAuthError("informe o nome");
+        return;
+      }
+      if (!mesa.trim()) {
+        setAuthError("informe o numero da mesa");
+        return;
+      }
     }
     setAuthError("");
     setLoading(true);
     const res = await fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: mode, email, password, mesa }),
+      body: JSON.stringify({ action: mode, email, password, mesa, name: cadastroNome }),
     });
     const data = await res.json();
     setLoading(false);
@@ -198,6 +205,16 @@ export default function CloserControl() {
           <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6 flex flex-col gap-4">
             {mode === "register" && (
               <Field
+                label="Nome"
+                value={cadastroNome}
+                onChange={(e) => setCadastroNome(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && submitAuth()}
+                placeholder="Ex: Joao Silva"
+                autoFocus
+              />
+            )}
+            {mode === "register" && (
+              <Field
                 label="Numero da mesa"
                 value={mesa}
                 onChange={(e) => setMesa(e.target.value)}
@@ -212,7 +229,6 @@ export default function CloserControl() {
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitAuth()}
               placeholder="voce@empresa.com"
-              autoFocus
             />
             <Field
               label="Senha"

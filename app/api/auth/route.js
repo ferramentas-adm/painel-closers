@@ -1,16 +1,6 @@
 import { createAccount, verifyLogin } from "@/lib/store";
 import { createSessionCookie, clearSessionCookie } from "@/lib/session";
-import { getFullNameFromDirectory } from "@/lib/google-calendar";
 import { authSchema } from "@/lib/schemas";
-
-function nomeFromEmail(email) {
-  const prefixo = email.split("@")[0];
-  return prefixo
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map((parte) => parte[0].toUpperCase() + parte.slice(1))
-    .join(" ");
-}
 
 export async function POST(request) {
   const body = await request.json().catch(() => null);
@@ -19,11 +9,10 @@ export async function POST(request) {
     const message = parsed.error.issues[0]?.message ?? "dados invalidos";
     return Response.json({ error: message }, { status: 400 });
   }
-  const { action, email, password, mesa } = parsed.data;
+  const { action, email, password, mesa, name } = parsed.data;
 
   if (action === "register") {
-    const nome = (await getFullNameFromDirectory(email)) || nomeFromEmail(email);
-    const account = await createAccount(password, mesa, email, nome);
+    const account = await createAccount(password, mesa, email, name);
     if (!account) {
       return Response.json({ error: "email ja cadastrado" }, { status: 409 });
     }
