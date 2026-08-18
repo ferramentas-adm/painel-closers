@@ -9,7 +9,7 @@ function Field({ label, ...props }) {
         {label}
       </span>
       <input
-        className="rounded-lg px-4 py-3 bg-white/[0.03] text-white placeholder-neutral-700 border border-white/[0.08] text-base focus:outline-none focus:border-cyan-500/50 transition-colors"
+        className="rounded-lg px-4 py-3 bg-white/[0.03] text-white placeholder-neutral-700 border border-white/[0.08] text-base focus:outline-none focus:border-accent/50 transition-colors"
         {...props}
       />
     </label>
@@ -191,7 +191,7 @@ export default function CloserControl() {
       <main className="board-texture min-h-screen bg-[#0a0b0d] text-white flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xl font-bold">
+            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg border border-accent/30 bg-accent/10 text-accent text-xl font-bold">
               ◆
             </div>
             <h1 className="font-mono text-lg font-bold uppercase tracking-widest">
@@ -248,7 +248,7 @@ export default function CloserControl() {
             <button
               disabled={loading}
               onClick={submitAuth}
-              className="bg-cyan-500 hover:bg-cyan-400 text-black disabled:opacity-50 rounded-lg py-3 text-sm font-bold uppercase tracking-wide transition-colors"
+              className="bg-accent hover:bg-accent-hover text-black disabled:opacity-50 rounded-lg py-3 text-sm font-bold uppercase tracking-wide transition-colors"
             >
               {mode === "login" ? "Entrar" : "Cadastrar"}
             </button>
@@ -289,7 +289,7 @@ export default function CloserControl() {
 
       {evento && (
         <div className="relative overflow-hidden bg-white/[0.02] border border-white/[0.06] rounded-lg pl-4 pr-4 py-3 w-full max-w-xs text-sm">
-          <span className="absolute inset-y-0 left-0 w-1 bg-cyan-500/60" />
+          <span className="absolute inset-y-0 left-0 w-1 bg-accent/60" />
           <p className="font-semibold text-white mb-1">{evento.titulo}</p>
           <p className="font-mono text-neutral-500 text-xs">
             {new Date(evento.inicio).toLocaleTimeString("pt-BR", {
@@ -372,7 +372,7 @@ export default function CloserControl() {
           )}
           <button
             onClick={salvarPerfil}
-            className="bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg py-2.5 text-sm font-bold uppercase tracking-wide transition-colors"
+            className="bg-accent hover:bg-accent-hover text-black rounded-lg py-2.5 text-sm font-bold uppercase tracking-wide transition-colors"
           >
             Salvar perfil
           </button>

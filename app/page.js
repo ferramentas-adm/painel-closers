@@ -199,10 +199,10 @@ export default function Painel() {
     <main className="board-texture min-h-screen bg-[#0a0b0d] text-white px-6 py-8 sm:px-10">
       <header className="max-w-6xl mx-auto flex items-center justify-between mb-8 pb-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
-          <span className="live-dot h-2 w-2 rounded-full bg-cyan-400" />
+          <span className="live-dot h-2 w-2 rounded-full bg-accent" />
           <div>
             <h1 className="font-mono text-lg font-bold tracking-widest uppercase">
-              Painel<span className="text-cyan-400">/</span>Status
+              Painel<span className="text-accent">/</span>Status
             </h1>
             <p className="text-neutral-600 text-xs mt-0.5">
               atualiza automaticamente

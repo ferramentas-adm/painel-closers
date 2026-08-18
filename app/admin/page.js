@@ -138,7 +138,7 @@ export default function AdminPage() {
       <main className="board-texture min-h-screen bg-[#0a0b0d] text-white flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xl font-bold">
+            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg border border-accent/30 bg-accent/10 text-accent text-xl font-bold">
               ◆
             </div>
             <h1 className="font-mono text-lg font-bold uppercase tracking-widest">Admin</h1>
@@ -146,7 +146,7 @@ export default function AdminPage() {
           </div>
           <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-6 flex flex-col gap-4">
             <input
-              className="rounded-lg px-4 py-3 bg-white/[0.03] text-white border border-white/[0.08] text-base focus:outline-none focus:border-cyan-500/50"
+              className="rounded-lg px-4 py-3 bg-white/[0.03] text-white border border-white/[0.08] text-base focus:outline-none focus:border-accent/50"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -161,7 +161,7 @@ export default function AdminPage() {
             )}
             <button
               onClick={login}
-              className="bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg py-3 text-sm font-bold uppercase tracking-wide transition-colors"
+              className="bg-accent hover:bg-accent-hover text-black rounded-lg py-3 text-sm font-bold uppercase tracking-wide transition-colors"
             >
               Entrar
             </button>
@@ -177,7 +177,7 @@ export default function AdminPage() {
         <div className="flex items-center justify-between mb-8 pb-5 border-b border-white/[0.06]">
           <div>
             <h1 className="font-mono text-lg font-bold tracking-widest uppercase">
-              Admin<span className="text-cyan-400">/</span>Painel
+              Admin<span className="text-accent">/</span>Painel
             </h1>
             <p className="text-neutral-600 text-xs mt-0.5">Gestao do painel de closers</p>
           </div>
@@ -196,7 +196,7 @@ export default function AdminPage() {
               onClick={() => setTab(key)}
               className={`px-4 py-2 rounded text-xs font-mono font-bold uppercase tracking-wider transition-colors ${
                 tab === key
-                  ? "bg-cyan-500/15 text-cyan-400"
+                  ? "bg-accent/15 text-accent"
                   : "text-neutral-600 hover:text-neutral-400"
               }`}
             >
@@ -242,13 +242,13 @@ export default function AdminPage() {
                   </span>
                 </div>
                 <input
-                  className="rounded-lg px-3 py-2 bg-white/[0.03] border border-white/[0.08] w-20 text-sm focus:outline-none focus:border-cyan-500/50"
+                  className="rounded-lg px-3 py-2 bg-white/[0.03] border border-white/[0.08] w-20 text-sm focus:outline-none focus:border-accent/50"
                   value={c.mesa ?? ""}
                   onChange={(e) => updateField(c.id, "mesa", e.target.value)}
                   placeholder="mesa"
                 />
                 <input
-                  className="rounded-lg px-3 py-2 bg-white/[0.03] border border-white/[0.08] flex-1 min-w-[180px] text-sm focus:outline-none focus:border-cyan-500/50"
+                  className="rounded-lg px-3 py-2 bg-white/[0.03] border border-white/[0.08] flex-1 min-w-[180px] text-sm focus:outline-none focus:border-accent/50"
                   value={c.email ?? ""}
                   onChange={(e) => updateField(c.id, "email", e.target.value)}
                   placeholder="email"
@@ -256,13 +256,13 @@ export default function AdminPage() {
                 <div className="flex gap-2 ml-auto">
                   <button
                     onClick={() => salvarColaborador(c)}
-                    className="bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg px-3 py-2 text-xs font-semibold transition-colors"
+                    className="bg-accent hover:bg-accent-hover text-black rounded-lg px-3 py-2 text-xs font-semibold transition-colors"
                   >
                     Salvar
                   </button>
                   <button
                     onClick={() => resetarSenha(c)}
-                    className="bg-white/[0.03] border border-white/[0.08] hover:border-cyan-500/40 rounded-lg px-3 py-2 text-xs font-semibold transition-colors"
+                    className="bg-white/[0.03] border border-white/[0.08] hover:border-accent/40 rounded-lg px-3 py-2 text-xs font-semibold transition-colors"
                   >
                     Redefinir senha
                   </button>
@@ -288,13 +288,13 @@ export default function AdminPage() {
               maiusculas e acentos.
             </p>
             <textarea
-              className="rounded-lg px-4 py-3 bg-white/[0.02] border border-white/[0.06] h-64 font-mono text-sm focus:outline-none focus:border-cyan-500/50"
+              className="rounded-lg px-4 py-3 bg-white/[0.02] border border-white/[0.06] h-64 font-mono text-sm focus:outline-none focus:border-accent/50"
               value={priorityText}
               onChange={(e) => setPriorityText(e.target.value)}
             />
             <button
               onClick={salvarPrioridade}
-              className="bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg py-3 text-sm font-bold uppercase tracking-wide transition-colors"
+              className="bg-accent hover:bg-accent-hover text-black rounded-lg py-3 text-sm font-bold uppercase tracking-wide transition-colors"
             >
               Salvar prioridade
             </button>
