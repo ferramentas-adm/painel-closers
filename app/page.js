@@ -72,9 +72,19 @@ function Card({ name, info, now, priorityNames }) {
         )}
       </div>
 
-      <span className={`font-mono text-[10px] font-bold uppercase tracking-[0.15em] ${labelColor}`}>
-        [{livre ? "LIVRE" : "OCUPADO"}]
-      </span>
+      <div className="flex items-center gap-1.5">
+        <span className={`font-mono text-[10px] font-bold uppercase tracking-[0.15em] ${labelColor}`}>
+          [{livre ? "LIVRE" : "OCUPADO"}]
+        </span>
+        {info.origem && (
+          <span
+            className="font-mono text-[9px] uppercase tracking-wider text-neutral-600"
+            title={info.origem === "agenda" ? "Definido pela agenda" : "Definido manualmente"}
+          >
+            {info.origem === "agenda" ? "◔ agenda" : "✎ manual"}
+          </span>
+        )}
+      </div>
 
       <span className="font-mono text-white text-2xl font-bold tabular-nums mt-1">
         {formatElapsed(now - info.changedAt)}
