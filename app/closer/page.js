@@ -160,11 +160,14 @@ export default function CloserControl() {
   async function toggleAlerta() {
     const active = !alertaAtiva;
     setAlertaAtiva(active);
-    await fetch("/api/alerta", {
+    const res = await fetch("/api/alerta", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ active }),
     });
+    if (res.status === 401) {
+      sairSessao();
+    }
   }
 
   async function sairSessao() {

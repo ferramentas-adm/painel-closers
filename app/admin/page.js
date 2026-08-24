@@ -26,6 +26,16 @@ export default function AdminPage() {
   const [priorityText, setPriorityText] = useState("");
   const [metrics, setMetrics] = useState(null);
   const [msg, setMsg] = useState("");
+  const [erro, setErro] = useState("");
+
+  async function tratarFalha(res) {
+    if (res.status === 401) {
+      setAuthed(false);
+      return;
+    }
+    const data = await res.json().catch(() => ({}));
+    setErro(data.error ?? "erro ao salvar");
+  }
 
   useEffect(() => {
     fetch("/api/admin/auth")
@@ -71,42 +81,48 @@ export default function AdminPage() {
 
   async function salvarColaborador(c) {
     setMsg("");
+    setErro("");
     const res = await fetch("/api/admin/colaboradores", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: c.id, mesa: c.mesa, email: c.email }),
     });
-    if (res.ok) {
-      setMsg(`${c.nome} salvo.`);
-      loadAll();
-    }
+    if (!res.ok) return tratarFalha(res);
+    setMsg(`${c.nome} salvo.`);
+    loadAll();
   }
 
   async function resetarSenha(c) {
     const nova = prompt(`Nova senha para ${c.nome}:`);
     if (!nova) return;
+    setMsg("");
+    setErro("");
     const res = await fetch("/api/admin/colaboradores", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: c.id, novaSenha: nova }),
     });
-    if (res.ok) setMsg(`Senha de ${c.nome} redefinida.`);
+    if (!res.ok) return tratarFalha(res);
+    setMsg(`Senha de ${c.nome} redefinida.`);
   }
 
   async function excluir(c) {
     if (!confirm(`Excluir ${c.nome} permanentemente? Essa acao nao pode ser desfeita.`)) return;
+    setMsg("");
+    setErro("");
     const res = await fetch("/api/admin/colaboradores", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: c.id }),
     });
-    if (res.ok) {
-      setMsg(`${c.nome} excluido.`);
-      loadAll();
-    }
+    if (!res.ok) return tratarFalha(res);
+    setMsg(`${c.nome} excluido.`);
+    loadAll();
   }
 
   async function salvarPrioridade() {
+    setMsg("");
+    setErro("");
     const names = priorityText
       .split("\n")
       .map((n) => n.trim())
@@ -116,7 +132,8 @@ export default function AdminPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ names }),
     });
-    if (res.ok) setMsg("Lista de prioridade salva.");
+    if (!res.ok) return tratarFalha(res);
+    setMsg("Lista de prioridade salva.");
   }
 
   function updateField(id, field, value) {
@@ -208,6 +225,11 @@ export default function AdminPage() {
         {msg && (
           <p className="text-emerald-400 text-sm mb-5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 inline-block">
             {msg}
+          </p>
+        )}
+        {erro && (
+          <p className="text-red-400 text-sm mb-5 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 inline-block">
+            {erro}
           </p>
         )}
 

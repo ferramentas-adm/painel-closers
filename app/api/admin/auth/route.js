@@ -1,6 +1,9 @@
 import { createAdminSessionCookie, clearAdminSessionCookie, isAdminRequest } from "@/lib/admin-session";
 import { adminLoginSchema } from "@/lib/schemas";
+import { checkRateLimit, registrarFalha, limparTentativas } from "@/lib/rate-limit";
 import { timingSafeEqual } from "crypto";
+
+const RATE_LIMIT_KEY = "admin-login";
 
 function checkPassword(input) {
   const expected = process.env.ADMIN_PASSWORD;
@@ -24,9 +27,19 @@ export async function POST(request) {
     );
   }
 
+  const limite = checkRateLimit(RATE_LIMIT_KEY);
+  if (limite.bloqueado) {
+    return Response.json(
+      { error: "muitas tentativas, aguarde alguns minutos" },
+      { status: 429 }
+    );
+  }
+
   if (!checkPassword(parsed.data.password)) {
+    registrarFalha(RATE_LIMIT_KEY);
     return Response.json({ error: "senha invalida" }, { status: 401 });
   }
+  limparTentativas(RATE_LIMIT_KEY);
 
   return Response.json(
     { ok: true },

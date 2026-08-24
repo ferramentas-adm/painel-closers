@@ -41,7 +41,10 @@ export async function PATCH(request) {
   if (!parsed.success) {
     return Response.json({ error: "dados invalidos" }, { status: 400 });
   }
-  await updateColaborador(parsed.data.id, parsed.data);
+  const ok = await updateColaborador(parsed.data.id, parsed.data);
+  if (!ok) {
+    return Response.json({ error: "email ja usado por outro colaborador" }, { status: 409 });
+  }
   return Response.json({ ok: true });
 }
 

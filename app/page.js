@@ -254,9 +254,9 @@ export default function Painel() {
           <p className="font-mono text-neutral-700 text-sm tracking-widest mb-3">
             [ SEM DADOS ]
           </p>
-          <p className="text-neutral-400 text-lg">Nenhum closer cadastrado ainda.</p>
+          <p className="text-neutral-400 text-lg">Nenhum closer ativo no momento.</p>
           <p className="text-neutral-600 text-sm mt-1">
-            Acesse <span className="text-neutral-400">/closer</span> para adicionar.
+            Cada closer precisa estar com a aba <span className="text-neutral-400">/closer</span> aberta pra aparecer aqui.
           </p>
         </div>
       ) : cycling ? (
